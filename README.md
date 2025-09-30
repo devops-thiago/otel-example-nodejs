@@ -549,22 +549,3 @@ Please ensure:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Related Projects
-
-- [otel-example-python](https://github.com/devops-thiago/otel-example-python) - Python FastAPI version
-- [otel-example-go](https://github.com/devops-thiago/otel-example-go) - Go version
-- [otel-example-java](https://github.com/devops-thiago/otel-example-java) - Java Spring Boot version
-
-## 📚 Resources
-
-- [OpenTelemetry JavaScript Documentation](https://opentelemetry.io/docs/instrumentation/js/)
-- [Express Documentation](https://expressjs.com/)
-- [Grafana Tempo](https://grafana.com/oss/tempo/)
-- [Grafana Mimir](https://grafana.com/oss/mimir/)
-- [Grafana Loki](https://grafana.com/oss/loki/)
-- [Grafana Alloy](https://grafana.com/docs/alloy/latest/)
-- [Docker Hub Repository](https://hub.docker.com/r/thiagosg/otel-crud-api-nodejs)
-
----
-
-**Built with ❤️ using Node.js, Express, OpenTelemetry, and the Grafana observability stack.**
