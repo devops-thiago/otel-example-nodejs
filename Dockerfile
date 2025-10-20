@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Node.js Express API
 
 # Stage 1: Build stage
-FROM node:18-alpine AS builder
+FROM node:25-alpine AS builder
 
 # Metadata labels
 LABEL maintainer="Thiago S.G. <thiagosg@example.com>"
@@ -19,7 +19,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Stage 2: Production stage
-FROM node:18-alpine
+FROM node:25-alpine
 
 WORKDIR /app
 
