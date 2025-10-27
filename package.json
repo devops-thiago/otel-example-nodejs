@@ -48,7 +48,7 @@
     "@opentelemetry/sdk-node": "^0.205.0",
     "@opentelemetry/sdk-trace-node": "^2.1.0",
     "@opentelemetry/semantic-conventions": "^1.27.0",
-    "express": "^4.21.1",
+    "express": "^5.1.0",
     "mysql2": "^3.11.3",
     "dotenv": "^16.4.5",
     "pino": "^10.1.0",
