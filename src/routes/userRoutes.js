@@ -17,7 +17,8 @@ const router = express.Router();
  */
 router.get('/', validate(userSchemas.pagination, 'query'), async (req, res, next) => {
   try {
-    const { limit, offset } = req.query;
+    const limit = Number(req.query.limit);
+    const offset = Number(req.query.offset);
 
     const [users, total] = await Promise.all([
       userRepository.findAll(limit, offset),
