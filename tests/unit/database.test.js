@@ -159,7 +159,7 @@ describe('Database Module', () => {
 
       try {
         await database.testConnection();
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -216,7 +216,7 @@ describe('Database Module', () => {
 
       try {
         await database.initializeSchema();
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
