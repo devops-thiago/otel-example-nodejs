@@ -201,19 +201,22 @@ describe('Express App Module', () => {
   });
 
   describe('Error Handling', () => {
-    it('should have error handler middleware', () => {
-      const middlewares = app._router.stack;
-      const hasErrorHandler = middlewares.some(
-        (layer) => layer.handle && layer.handle.length === 4
-      );
+    it('should have error handler middleware', async () => {
+      // Test that the error handler returns proper JSON error responses
+      // by requesting a non-existent route
+      const response = await request(app).get('/nonexistent');
 
-      expect(hasErrorHandler).toBe(true);
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
     });
 
     it('should catch errors in routes', async () => {
       // This tests that the error handler is set up correctly
       // Actual error handling is tested in errorHandler.test.js
-      expect(app._router).toBeDefined();
+      const response = await request(app).get('/nonexistent');
+
+      expect(response.body.error).toHaveProperty('message');
+      expect(response.body.error).toHaveProperty('statusCode', 404);
     });
   });
 
