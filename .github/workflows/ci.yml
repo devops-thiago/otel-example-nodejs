@@ -73,7 +73,7 @@ jobs:
           NODE_ENV: test
       
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.node-version == '18'
         with:
           name: coverage
