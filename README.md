@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/github/license/devops-thiago/otel-example-nodejs)](LICENSE)
 [![Codecov](https://img.shields.io/codecov/c/github/devops-thiago/otel-example-nodejs?label=coverage)](https://app.codecov.io/gh/devops-thiago/otel-example-nodejs)
 [![Sonar Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=devops-thiago_otel-example-nodejs&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=devops-thiago_otel-example-nodejs)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=devops-thiago_otel-example-nodejs&metric=coverage)](https://sonarcloud.io/summary/new_code?id=devops-thiago_otel-example-nodejs)
+[![Sonar Coverage](https://sonarcloud.io/api/project_badges/measure?project=devops-thiago_otel-example-nodejs&metric=coverage)](https://sonarcloud.io/summary/new_code?id=devops-thiago_otel-example-nodejs)
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-enabled-blue?logo=opentelemetry)](https://opentelemetry.io)
 [![Docker](https://img.shields.io/badge/Docker-ready-blue?logo=docker)](https://www.docker.com)
 [![Docker Hub](https://img.shields.io/docker/v/thiagosg/otel-crud-api-nodejs?logo=docker&label=Docker%20Hub)](https://hub.docker.com/r/thiagosg/otel-crud-api-nodejs)
