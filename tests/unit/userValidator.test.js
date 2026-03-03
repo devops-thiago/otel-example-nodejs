@@ -11,7 +11,7 @@ describe('User Validator Unit Tests', () => {
       const validData = {
         name: 'John Doe',
         email: 'john@example.com',
-        age: 30,
+        bio: 'Software Engineer',
       };
 
       const { error, value } = userSchemas.create.validate(validData);
@@ -23,7 +23,7 @@ describe('User Validator Unit Tests', () => {
     it('should reject missing name', () => {
       const invalidData = {
         email: 'john@example.com',
-        age: 30,
+        bio: 'Engineer',
       };
 
       const { error } = userSchemas.create.validate(invalidData);
@@ -35,7 +35,7 @@ describe('User Validator Unit Tests', () => {
     it('should reject missing email', () => {
       const invalidData = {
         name: 'John Doe',
-        age: 30,
+        bio: 'Engineer',
       };
 
       const { error } = userSchemas.create.validate(invalidData);
@@ -48,7 +48,7 @@ describe('User Validator Unit Tests', () => {
       const invalidData = {
         name: 'John Doe',
         email: 'not-an-email',
-        age: 30,
+        bio: 'Engineer',
       };
 
       const { error } = userSchemas.create.validate(invalidData);
@@ -61,7 +61,7 @@ describe('User Validator Unit Tests', () => {
       const invalidData = {
         name: 'J',
         email: 'john@example.com',
-        age: 30,
+        bio: 'Engineer',
       };
 
       const { error } = userSchemas.create.validate(invalidData);
@@ -70,33 +70,32 @@ describe('User Validator Unit Tests', () => {
       expect(error.details[0].path).toContain('name');
     });
 
-    it('should reject negative age', () => {
+    it('should reject bio that is too long', () => {
       const invalidData = {
         name: 'John Doe',
         email: 'john@example.com',
-        age: -5,
+        bio: 'a'.repeat(501),
       };
 
       const { error } = userSchemas.create.validate(invalidData);
 
       expect(error).toBeDefined();
-      expect(error.details[0].path).toContain('age');
+      expect(error.details[0].path).toContain('bio');
     });
 
-    it('should reject age over 150', () => {
-      const invalidData = {
+    it('should accept valid bio', () => {
+      const validData = {
         name: 'John Doe',
         email: 'john@example.com',
-        age: 200,
+        bio: 'a'.repeat(500),
       };
 
-      const { error } = userSchemas.create.validate(invalidData);
+      const { error } = userSchemas.create.validate(validData);
 
-      expect(error).toBeDefined();
-      expect(error.details[0].path).toContain('age');
+      expect(error).toBeUndefined();
     });
 
-    it('should accept user without age', () => {
+    it('should accept user without bio', () => {
       const validData = {
         name: 'John Doe',
         email: 'john@example.com',
@@ -105,14 +104,14 @@ describe('User Validator Unit Tests', () => {
       const { error, value } = userSchemas.create.validate(validData);
 
       expect(error).toBeUndefined();
-      expect(value.age).toBeUndefined();
+      expect(value.bio).toBeUndefined();
     });
 
     it('should strip unknown fields', () => {
       const dataWithExtra = {
         name: 'John Doe',
         email: 'john@example.com',
-        age: 30,
+        bio: 'Engineer',
         extraField: 'should be removed',
       };
 
@@ -128,7 +127,7 @@ describe('User Validator Unit Tests', () => {
     it('should validate valid update data', () => {
       const validData = {
         name: 'John Updated',
-        age: 31,
+        bio: 'Updated Bio',
       };
 
       const { error, value } = userSchemas.update.validate(validData);

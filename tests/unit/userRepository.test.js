@@ -44,8 +44,8 @@ describe('User Repository Unit Tests', () => {
   describe('findAll', () => {
     it('should return all users with pagination', async () => {
       const mockUsers = [
-        { id: 1, name: 'User 1', email: 'user1@test.com', age: 25 },
-        { id: 2, name: 'User 2', email: 'user2@test.com', age: 30 },
+        { id: 1, name: 'User 1', email: 'user1@test.com', bio: 'Developer' },
+        { id: 2, name: 'User 2', email: 'user2@test.com', bio: 'Engineer' },
       ];
 
       mockQuery.mockResolvedValue([mockUsers]);
@@ -74,7 +74,7 @@ describe('User Repository Unit Tests', () => {
 
   describe('findById', () => {
     it('should return user by ID', async () => {
-      const mockUser = { id: 1, name: 'Test User', email: 'test@test.com', age: 25 };
+      const mockUser = { id: 1, name: 'Test User', email: 'test@test.com', bio: 'Developer' };
       mockQuery.mockResolvedValue([[mockUser]]);
 
       const result = await userRepository.findById(1);
@@ -122,7 +122,7 @@ describe('User Repository Unit Tests', () => {
 
   describe('create', () => {
     it('should create a new user', async () => {
-      const userData = { name: 'New User', email: 'new@test.com', age: 28 };
+      const userData = { name: 'New User', email: 'new@test.com', bio: 'Frontend Developer' };
       const mockInsertResult = { insertId: 5 };
       const mockCreatedUser = { id: 5, ...userData };
 
@@ -137,12 +137,12 @@ describe('User Repository Unit Tests', () => {
       expect(mockQuery).toHaveBeenNthCalledWith(1, expect.stringContaining('INSERT INTO users'), [
         'New User',
         'new@test.com',
-        28,
+        'Frontend Developer',
       ]);
     });
 
     it('should handle creation errors', async () => {
-      const userData = { name: 'Test', email: 'test@test.com', age: 25 };
+      const userData = { name: 'Test', email: 'test@test.com', bio: 'Developer' };
       mockQuery.mockRejectedValue(new Error('Duplicate entry'));
 
       await expect(userRepository.create(userData)).rejects.toThrow('Duplicate entry');
@@ -151,7 +151,7 @@ describe('User Repository Unit Tests', () => {
 
   describe('update', () => {
     it('should update an existing user', async () => {
-      const userData = { name: 'Updated', email: 'updated@test.com', age: 30 };
+      const userData = { name: 'Updated', email: 'updated@test.com', bio: 'Senior Engineer' };
       const mockUpdateResult = { affectedRows: 1 };
       const mockUpdatedUser = { id: 1, ...userData };
 
@@ -166,13 +166,13 @@ describe('User Repository Unit Tests', () => {
       expect(mockQuery).toHaveBeenNthCalledWith(1, expect.stringContaining('UPDATE users'), [
         'Updated',
         'updated@test.com',
-        30,
+        'Senior Engineer',
         1,
       ]);
     });
 
     it('should return null when user not found', async () => {
-      const userData = { name: 'Test', email: 'test@test.com', age: 25 };
+      const userData = { name: 'Test', email: 'test@test.com', bio: 'Developer' };
       mockQuery.mockResolvedValue([{ affectedRows: 0 }]);
 
       const result = await userRepository.update(999, userData);
@@ -181,7 +181,7 @@ describe('User Repository Unit Tests', () => {
     });
 
     it('should handle update errors', async () => {
-      const userData = { name: 'Test', email: 'test@test.com', age: 25 };
+      const userData = { name: 'Test', email: 'test@test.com', bio: 'Developer' };
       mockQuery.mockRejectedValue(new Error('Update failed'));
 
       await expect(userRepository.update(1, userData)).rejects.toThrow('Update failed');
