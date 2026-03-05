@@ -111,7 +111,7 @@ router.put(
       const mergedData = {
         name: userData.name ?? existingUser.name,
         email: userData.email ?? existingUser.email,
-        age: userData.age ?? existingUser.age,
+        bio: userData.bio ?? existingUser.bio,
       };
 
       const user = await userRepository.update(id, mergedData);

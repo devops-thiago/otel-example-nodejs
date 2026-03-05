@@ -55,8 +55,8 @@ describe('User Routes', () => {
   describe('GET /api/users', () => {
     it('should return all users with pagination', async () => {
       const mockUsers = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 },
-        { id: 2, name: 'Jane Doe', email: 'jane@example.com', age: 25 },
+        { id: 1, name: 'John Doe', email: 'john@example.com', bio: 'Software Engineer' },
+        { id: 2, name: 'Jane Doe', email: 'jane@example.com', bio: 'Data Scientist' },
       ];
 
       userRepository.findAll.mockResolvedValue(mockUsers);
@@ -104,7 +104,12 @@ describe('User Routes', () => {
 
   describe('GET /api/users/:id', () => {
     it('should return user by id', async () => {
-      const mockUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
+      const mockUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
       userRepository.findById.mockResolvedValue(mockUser);
 
       const response = await request(app).get('/api/users/1');
@@ -141,7 +146,7 @@ describe('User Routes', () => {
 
   describe('POST /api/users', () => {
     it('should create a new user', async () => {
-      const newUser = { name: 'John Doe', email: 'john@example.com', age: 30 };
+      const newUser = { name: 'John Doe', email: 'john@example.com', bio: 'Software Engineer' };
       const createdUser = { id: 1, ...newUser };
 
       userRepository.findByEmail.mockResolvedValue(null);
@@ -156,7 +161,7 @@ describe('User Routes', () => {
     });
 
     it('should return 409 when email already exists', async () => {
-      const newUser = { name: 'John Doe', email: 'john@example.com', age: 30 };
+      const newUser = { name: 'John Doe', email: 'john@example.com', bio: 'Software Engineer' };
       const existingUser = { id: 1, ...newUser };
 
       userRepository.findByEmail.mockResolvedValue(existingUser);
@@ -179,24 +184,25 @@ describe('User Routes', () => {
       const response = await request(app).post('/api/users').send({
         name: 'John Doe',
         email: 'invalid-email',
-        age: 30,
       });
 
       expect(response.status).toBe(400);
     });
 
-    it('should validate age is a number', async () => {
-      const response = await request(app).post('/api/users').send({
-        name: 'John Doe',
-        email: 'john@example.com',
-        age: 'thirty',
-      });
+    it('should validate bio max length', async () => {
+      const response = await request(app)
+        .post('/api/users')
+        .send({
+          name: 'John Doe',
+          email: 'john@example.com',
+          bio: 'a'.repeat(501),
+        });
 
       expect(response.status).toBe(400);
     });
 
     it('should handle repository errors', async () => {
-      const newUser = { name: 'John Doe', email: 'john@example.com', age: 30 };
+      const newUser = { name: 'John Doe', email: 'john@example.com', bio: 'Software Engineer' };
 
       userRepository.findByEmail.mockResolvedValue(null);
       userRepository.create.mockRejectedValue(new Error('Database error'));
@@ -209,9 +215,19 @@ describe('User Routes', () => {
 
   describe('PUT /api/users/:id', () => {
     it('should update user', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
-      const updateData = { name: 'John Updated', age: 31 };
-      const updatedUser = { id: 1, name: 'John Updated', email: 'john@example.com', age: 31 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
+      const updateData = { name: 'John Updated', bio: 'Lead Engineer' };
+      const updatedUser = {
+        id: 1,
+        name: 'John Updated',
+        email: 'john@example.com',
+        bio: 'Lead Engineer',
+      };
 
       userRepository.findById.mockResolvedValue(existingUser);
       userRepository.update.mockResolvedValue(updatedUser);
@@ -224,7 +240,7 @@ describe('User Routes', () => {
       expect(userRepository.update).toHaveBeenCalledWith(1, {
         name: 'John Updated',
         email: 'john@example.com',
-        age: 31,
+        bio: 'Lead Engineer',
       });
     });
 
@@ -240,9 +256,19 @@ describe('User Routes', () => {
     });
 
     it('should update email if provided', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
       const updateData = { email: 'newemail@example.com' };
-      const updatedUser = { id: 1, name: 'John Doe', email: 'newemail@example.com', age: 30 };
+      const updatedUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'newemail@example.com',
+        bio: 'Software Engineer',
+      };
 
       userRepository.findById.mockResolvedValue(existingUser);
       userRepository.findByEmail.mockResolvedValue(null);
@@ -255,8 +281,18 @@ describe('User Routes', () => {
     });
 
     it('should return 409 when new email already exists', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
-      const otherUser = { id: 2, name: 'Jane Doe', email: 'jane@example.com', age: 25 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
+      const otherUser = {
+        id: 2,
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        bio: 'Data Scientist',
+      };
       const updateData = { email: 'jane@example.com' };
 
       userRepository.findById.mockResolvedValue(existingUser);
@@ -271,9 +307,19 @@ describe('User Routes', () => {
     });
 
     it('should not check email if not being changed', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
       const updateData = { name: 'John Updated' };
-      const updatedUser = { id: 1, name: 'John Updated', email: 'john@example.com', age: 30 };
+      const updatedUser = {
+        id: 1,
+        name: 'John Updated',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
 
       userRepository.findById.mockResolvedValue(existingUser);
       userRepository.update.mockResolvedValue(updatedUser);
@@ -285,9 +331,19 @@ describe('User Routes', () => {
     });
 
     it('should allow same email for same user', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
       const updateData = { email: 'john@example.com', name: 'John Updated' };
-      const updatedUser = { id: 1, name: 'John Updated', email: 'john@example.com', age: 30 };
+      const updatedUser = {
+        id: 1,
+        name: 'John Updated',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
 
       userRepository.findById.mockResolvedValue(existingUser);
       userRepository.update.mockResolvedValue(updatedUser);
@@ -305,13 +361,18 @@ describe('User Routes', () => {
     });
 
     it('should validate update data', async () => {
-      const response = await request(app).put('/api/users/1').send({ age: 'invalid' });
+      const response = await request(app).put('/api/users/1').send({ email: 'invalid-email' });
 
       expect(response.status).toBe(400);
     });
 
     it('should handle repository errors', async () => {
-      const existingUser = { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 };
+      const existingUser = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'Software Engineer',
+      };
 
       userRepository.findById.mockResolvedValue(existingUser);
       userRepository.update.mockRejectedValue(new Error('Database error'));

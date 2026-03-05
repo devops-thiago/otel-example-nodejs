@@ -39,7 +39,7 @@ describe('Database Module', () => {
     // Reset mock implementations
     mockPool.getConnection.mockResolvedValue(mockConnection);
     mockConnection.ping.mockResolvedValue(undefined);
-    mockConnection.query.mockResolvedValue([]);
+    mockConnection.query.mockResolvedValue([[], []]);
     mockConnection.release.mockReturnValue(undefined);
     mockPool.end.mockResolvedValue(undefined);
 
@@ -244,6 +244,48 @@ describe('Database Module', () => {
       const query = mockConnection.query.mock.calls[0][0];
       expect(query).toContain('CHARSET=utf8mb4');
       expect(query).toContain('COLLATE=utf8mb4_unicode_ci');
+    });
+
+    it('should skip migration when no legacy age column exists', async () => {
+      // Default mock returns [[], []] for all queries (no age column found)
+      await database.initializeSchema();
+
+      // Should have called query twice: CREATE TABLE + information_schema check
+      expect(mockConnection.query).toHaveBeenCalledTimes(2);
+      const infoSchemaQuery = mockConnection.query.mock.calls[1][0];
+      expect(infoSchemaQuery).toContain('information_schema.COLUMNS');
+      expect(infoSchemaQuery).toContain("COLUMN_NAME = 'age'");
+    });
+
+    it('should migrate legacy age column when it exists', async () => {
+      // First call: CREATE TABLE (success)
+      // Second call: information_schema check for 'age' → found
+      // Third call: DROP COLUMN age
+      // Fourth call: information_schema check for 'bio' → found (already exists)
+      mockConnection.query
+        .mockResolvedValueOnce([[], []]) // CREATE TABLE
+        .mockResolvedValueOnce([[{ COLUMN_NAME: 'age' }], []]) // age exists
+        .mockResolvedValueOnce([[], []]) // DROP COLUMN age
+        .mockResolvedValueOnce([[{ COLUMN_NAME: 'bio' }], []]); // bio exists
+
+      await database.initializeSchema();
+
+      expect(mockConnection.query).toHaveBeenCalledTimes(4);
+      expect(mockConnection.query.mock.calls[2][0]).toContain('DROP COLUMN age');
+      expect(logger.info).toHaveBeenCalledWith('Migrating legacy column: age → bio');
+    });
+
+    it('should add bio column when migrating and it does not exist', async () => {
+      mockConnection.query
+        .mockResolvedValueOnce([[], []]) // CREATE TABLE
+        .mockResolvedValueOnce([[{ COLUMN_NAME: 'age' }], []]) // age exists
+        .mockResolvedValueOnce([[], []]) // DROP COLUMN age
+        .mockResolvedValueOnce([[], []]); // bio NOT found → must ADD COLUMN
+
+      await database.initializeSchema();
+
+      expect(mockConnection.query).toHaveBeenCalledTimes(5);
+      expect(mockConnection.query.mock.calls[4][0]).toContain('ADD COLUMN bio TEXT NULL');
     });
   });
 

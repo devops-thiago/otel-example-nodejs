@@ -95,13 +95,32 @@ const initializeSchema = async () => {
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        age INT,
+        bio TEXT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_email (email),
         INDEX idx_created_at (created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
+
+    // Migrate legacy schema: rename age → bio if the old column still exists
+    const [columns] = await connection.query(
+      `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'age'`
+    );
+    if (columns.length > 0) {
+      logger.info('Migrating legacy column: age → bio');
+      await connection.query('ALTER TABLE users DROP COLUMN age');
+      // bio column already exists from CREATE TABLE above when table was first
+      // created with the new schema, or we add it if missing
+      const [bioCol] = await connection.query(
+        `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'bio'`
+      );
+      if (bioCol.length === 0) {
+        await connection.query('ALTER TABLE users ADD COLUMN bio TEXT NULL AFTER email');
+      }
+    }
 
     logger.info('Database schema initialized successfully');
   } catch (error) {

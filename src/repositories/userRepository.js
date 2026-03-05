@@ -24,7 +24,7 @@ class UserRepository {
       span?.setAttribute('db.table', 'users');
 
       const [rows] = await getPool().query(
-        'SELECT id, name, email, age, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        'SELECT id, name, email, bio, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?',
         [limit, offset]
       );
 
@@ -58,7 +58,7 @@ class UserRepository {
       span?.setAttribute('user.id', id);
 
       const [rows] = await getPool().query(
-        'SELECT id, name, email, age, created_at, updated_at FROM users WHERE id = ?',
+        'SELECT id, name, email, bio, created_at, updated_at FROM users WHERE id = ?',
         [id]
       );
 
@@ -90,7 +90,7 @@ class UserRepository {
       span?.setAttribute('db.table', 'users');
 
       const [rows] = await getPool().query(
-        'SELECT id, name, email, age, created_at, updated_at FROM users WHERE email = ?',
+        'SELECT id, name, email, bio, created_at, updated_at FROM users WHERE email = ?',
         [email]
       );
 
@@ -121,10 +121,11 @@ class UserRepository {
       span?.setAttribute('db.operation', 'INSERT');
       span?.setAttribute('db.table', 'users');
 
-      const { name, email, age } = userData;
+      const { name, email } = userData;
+      const bio = userData.bio ?? null;
       const [result] = await getPool().query(
-        'INSERT INTO users (name, email, age) VALUES (?, ?, ?)',
-        [name, email, age]
+        'INSERT INTO users (name, email, bio) VALUES (?, ?, ?)',
+        [name, email, bio]
       );
 
       const duration = Date.now() - startTime;
@@ -159,10 +160,11 @@ class UserRepository {
       span?.setAttribute('db.table', 'users');
       span?.setAttribute('user.id', id);
 
-      const { name, email, age } = userData;
+      const { name, email } = userData;
+      const bio = userData.bio ?? null;
       const [result] = await getPool().query(
-        'UPDATE users SET name = ?, email = ?, age = ? WHERE id = ?',
-        [name, email, age, id]
+        'UPDATE users SET name = ?, email = ?, bio = ? WHERE id = ?',
+        [name, email, bio, id]
       );
 
       const duration = Date.now() - startTime;

@@ -20,11 +20,9 @@ const userSchemas = {
       'string.email': 'Email must be a valid email address',
       'any.required': 'Email is required',
     }),
-    age: Joi.number().integer().min(0).max(150).optional().messages({
-      'number.base': 'Age must be a number',
-      'number.integer': 'Age must be an integer',
-      'number.min': 'Age must be at least 0',
-      'number.max': 'Age must not exceed 150',
+    bio: Joi.string().max(500).allow('').optional().messages({
+      'string.base': 'Bio must be a string',
+      'string.max': 'Bio must not exceed 500 characters',
     }),
   }),
 
@@ -38,11 +36,9 @@ const userSchemas = {
       'string.base': 'Email must be a string',
       'string.email': 'Email must be a valid email address',
     }),
-    age: Joi.number().integer().min(0).max(150).optional().messages({
-      'number.base': 'Age must be a number',
-      'number.integer': 'Age must be an integer',
-      'number.min': 'Age must be at least 0',
-      'number.max': 'Age must not exceed 150',
+    bio: Joi.string().max(500).allow('').optional().messages({
+      'string.base': 'Bio must be a string',
+      'string.max': 'Bio must not exceed 500 characters',
     }),
   })
     .min(1)
