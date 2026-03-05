@@ -39,7 +39,7 @@ describe('Database Module', () => {
     // Reset mock implementations
     mockPool.getConnection.mockResolvedValue(mockConnection);
     mockConnection.ping.mockResolvedValue(undefined);
-    mockConnection.query.mockResolvedValue([]);
+    mockConnection.query.mockResolvedValue([[], []]);
     mockConnection.release.mockReturnValue(undefined);
     mockPool.end.mockResolvedValue(undefined);
 

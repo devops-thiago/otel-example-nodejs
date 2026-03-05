@@ -121,7 +121,8 @@ class UserRepository {
       span?.setAttribute('db.operation', 'INSERT');
       span?.setAttribute('db.table', 'users');
 
-      const { name, email, bio } = userData;
+      const { name, email } = userData;
+      const bio = userData.bio ?? null;
       const [result] = await getPool().query(
         'INSERT INTO users (name, email, bio) VALUES (?, ?, ?)',
         [name, email, bio]
@@ -159,7 +160,8 @@ class UserRepository {
       span?.setAttribute('db.table', 'users');
       span?.setAttribute('user.id', id);
 
-      const { name, email, bio } = userData;
+      const { name, email } = userData;
+      const bio = userData.bio ?? null;
       const [result] = await getPool().query(
         'UPDATE users SET name = ?, email = ?, bio = ? WHERE id = ?',
         [name, email, bio, id]

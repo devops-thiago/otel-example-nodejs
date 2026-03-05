@@ -1,55 +1,36 @@
 /**
  * Integration Tests for User API
+ *
+ * Set RUN_INTEGRATION_TESTS=true to run these tests against a real database.
+ * When the env var is not set, the entire suite is skipped (not silently passed).
  */
 
 const request = require('supertest');
 const app = require('../../src/app');
 const { getPool, initializeSchema, closePool, testConnection } = require('../../src/database');
 
-// Check if database is available before running tests
-let isDatabaseAvailable = false;
+const runIntegration = process.env.RUN_INTEGRATION_TESTS === 'true';
+const describeIf = runIntegration ? describe : describe.skip;
 
-const skipIfNoDb = () => {
-  if (!isDatabaseAvailable) {
-    return true;
-  }
-  return false;
-};
-
-beforeAll(async () => {
-  try {
-    await testConnection();
-    isDatabaseAvailable = true;
-  } catch {
-    console.warn('Database not available - skipping User API integration tests');
-  }
-});
-
-describe('User API Integration Tests', () => {
+describeIf('User API Integration Tests', () => {
   beforeAll(async () => {
-    if (!isDatabaseAvailable) return;
-    // Initialize database schema
+    await testConnection();
     await initializeSchema();
   });
 
   afterAll(async () => {
-    if (!isDatabaseAvailable) return;
-    // Clean up
     const pool = getPool();
     await pool.query('DELETE FROM users');
     await closePool();
   });
 
   beforeEach(async () => {
-    if (!isDatabaseAvailable) return;
-    // Clear users table before each test
     const pool = getPool();
     await pool.query('DELETE FROM users');
   });
 
   describe('GET /api/users', () => {
     it('should return empty array when no users exist', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app).get('/api/users').expect(200);
 
       expect(response.body.data).toEqual([]);
@@ -57,7 +38,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return all users with pagination', async () => {
-      if (skipIfNoDb()) return;
       // Create test users
       const pool = getPool();
       await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?), (?, ?, ?)', [
@@ -77,7 +57,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should support pagination with limit and offset', async () => {
-      if (skipIfNoDb()) return;
       // Create 5 test users
       const pool = getPool();
       for (let i = 1; i <= 5; i++) {
@@ -99,7 +78,6 @@ describe('User API Integration Tests', () => {
 
   describe('GET /api/users/:id', () => {
     it('should return a user by ID', async () => {
-      if (skipIfNoDb()) return;
       const pool = getPool();
       const [result] = await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?)', [
         'Alice',
@@ -118,21 +96,18 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app).get('/api/users/99999').expect(404);
 
       expect(response.body.error.message).toContain('not found');
     });
 
     it('should return 400 for invalid ID', async () => {
-      if (skipIfNoDb()) return;
       await request(app).get('/api/users/invalid').expect(400);
     });
   });
 
   describe('POST /api/users', () => {
     it('should create a new user', async () => {
-      if (skipIfNoDb()) return;
       const userData = {
         name: 'Charlie',
         email: 'charlie@example.com',
@@ -146,7 +121,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 400 for missing required fields', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app).post('/api/users').send({ name: 'Test' }).expect(400);
 
       expect(response.body.error.message).toBe('Validation failed');
@@ -154,7 +128,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 400 for invalid email', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app)
         .post('/api/users')
         .send({
@@ -167,7 +140,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 409 for duplicate email', async () => {
-      if (skipIfNoDb()) return;
       const userData = {
         name: 'Dave',
         email: 'dave@example.com',
@@ -184,7 +156,6 @@ describe('User API Integration Tests', () => {
 
   describe('PUT /api/users/:id', () => {
     it('should update a user', async () => {
-      if (skipIfNoDb()) return;
       const pool = getPool();
       const [result] = await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?)', [
         'Eve',
@@ -208,7 +179,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app)
         .put('/api/users/99999')
         .send({ name: 'Test' })
@@ -218,7 +188,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 400 for empty update', async () => {
-      if (skipIfNoDb()) return;
       const pool = getPool();
       const [result] = await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?)', [
         'Frank',
@@ -230,7 +199,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 409 for duplicate email on update', async () => {
-      if (skipIfNoDb()) return;
       const pool = getPool();
       await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?), (?, ?, ?)', [
         'User1',
@@ -257,7 +225,6 @@ describe('User API Integration Tests', () => {
 
   describe('DELETE /api/users/:id', () => {
     it('should delete a user', async () => {
-      if (skipIfNoDb()) return;
       const pool = getPool();
       const [result] = await pool.query('INSERT INTO users (name, email, bio) VALUES (?, ?, ?)', [
         'Grace',
@@ -273,7 +240,6 @@ describe('User API Integration Tests', () => {
     });
 
     it('should return 404 for non-existent user', async () => {
-      if (skipIfNoDb()) return;
       const response = await request(app).delete('/api/users/99999').expect(404);
 
       expect(response.body.error.message).toContain('not found');
