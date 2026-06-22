@@ -146,10 +146,13 @@ describe('Express App Module', () => {
       expect(response.status).not.toBe(500);
     });
 
-    it('should handle CORS', async () => {
+    it('should not set a permissive CORS origin by default', async () => {
+      // With no CORS_ORIGIN configured the API is same-origin only, so a
+      // cross-origin request gets no Access-Control-Allow-Origin header
+      // (no permissive wildcard).
       const response = await request(app).get('/').set('Origin', 'http://example.com');
 
-      expect(response.headers).toHaveProperty('access-control-allow-origin');
+      expect(response.headers['access-control-allow-origin']).toBeUndefined();
     });
 
     it('should set security headers with helmet', async () => {
