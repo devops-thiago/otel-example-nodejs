@@ -191,6 +191,26 @@ describe('Express App Module', () => {
 
       expect(response.status).not.toBe(405);
     });
+
+    it('reflects an allowed origin when CORS_ORIGIN is configured', async () => {
+      const original = process.env.CORS_ORIGIN;
+      // Comma-separated allowlist (with surrounding spaces to exercise trim()).
+      process.env.CORS_ORIGIN = 'http://allowed.com, http://second.com';
+      jest.resetModules();
+      const configuredApp = require('../../src/app');
+
+      const response = await request(configuredApp)
+        .get('/')
+        .set('Origin', 'http://allowed.com');
+
+      expect(response.headers['access-control-allow-origin']).toBe('http://allowed.com');
+
+      if (original === undefined) {
+        delete process.env.CORS_ORIGIN;
+      } else {
+        process.env.CORS_ORIGIN = original;
+      }
+    });
   });
 
   describe('Request Logging', () => {
