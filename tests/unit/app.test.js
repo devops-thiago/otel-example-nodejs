@@ -146,10 +146,13 @@ describe('Express App Module', () => {
       expect(response.status).not.toBe(500);
     });
 
-    it('should handle CORS', async () => {
+    it('should not set a permissive CORS origin by default', async () => {
+      // With no CORS_ORIGIN configured the API is same-origin only, so a
+      // cross-origin request gets no Access-Control-Allow-Origin header
+      // (no permissive wildcard).
       const response = await request(app).get('/').set('Origin', 'http://example.com');
 
-      expect(response.headers).toHaveProperty('access-control-allow-origin');
+      expect(response.headers['access-control-allow-origin']).toBeUndefined();
     });
 
     it('should set security headers with helmet', async () => {
@@ -187,6 +190,26 @@ describe('Express App Module', () => {
       const response = await request(app).options('/api/users');
 
       expect(response.status).not.toBe(405);
+    });
+
+    it('reflects an allowed origin when CORS_ORIGIN is configured', async () => {
+      const original = process.env.CORS_ORIGIN;
+      // Comma-separated allowlist (with surrounding spaces to exercise trim()).
+      process.env.CORS_ORIGIN = 'http://allowed.com, http://second.com';
+      jest.resetModules();
+      const configuredApp = require('../../src/app');
+
+      const response = await request(configuredApp)
+        .get('/')
+        .set('Origin', 'http://allowed.com');
+
+      expect(response.headers['access-control-allow-origin']).toBe('http://allowed.com');
+
+      if (original === undefined) {
+        delete process.env.CORS_ORIGIN;
+      } else {
+        process.env.CORS_ORIGIN = original;
+      }
     });
   });
 

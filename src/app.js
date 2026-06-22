@@ -22,10 +22,15 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet());
 
-// CORS middleware
+// CORS middleware — restrict to an explicit allowlist via CORS_ORIGIN
+// (comma-separated origins). Defaults to same-origin only rather than a
+// permissive wildcard (CodeQL: js/cors-permissive-configuration).
+const corsOrigin = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+  : false;
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
