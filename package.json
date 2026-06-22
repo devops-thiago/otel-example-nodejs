@@ -74,5 +74,21 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "overrides": {
+    "@babel/core": "^7.29.6",
+    "js-yaml": "^4.2.0",
+    "micromatch": {
+      "picomatch": "^2.3.2"
+    },
+    "anymatch": {
+      "picomatch": "^2.3.2"
+    },
+    "readdirp": {
+      "picomatch": "^2.3.2"
+    },
+    "jest-util": {
+      "picomatch": "^4.0.4"
+    }
   }
 }
